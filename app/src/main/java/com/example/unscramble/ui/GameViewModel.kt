@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 class GameViewModel : ViewModel() {
     // Game UI state
     private val _uiState = MutableStateFlow(GameUiState()) // backing property
-    val uiState: StateFlow<GameUiState> = _uiState.asStateFlow() // property - read only
+    val uiState: StateFlow<GameUiState> = _uiState.asStateFlow() // property - represented as read only
     private lateinit var currentWord: String
     // Set of words used in the game
     private var usedWords: MutableSet<String> = mutableSetOf()
