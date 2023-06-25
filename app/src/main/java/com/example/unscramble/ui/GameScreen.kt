@@ -76,13 +76,20 @@ fun GameScreen( gameViewModel: GameViewModel = viewModel()) {
             style = typography.titleLarge,
         )
 
-        GameLayout(
+        /*GameLayout(
             currentScrambledWord = gameUiState.currentScrambledWord,
 
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(mediumPadding)
+        )*/
+
+        GameLayout(
+            currentScrambledWord = gameUiState.currentScrambledWord,
+            userGuess = gameViewModel.userGuess,
+            onUserGuessChanged = { gameViewModel.updateUserGuess(it) },
+            onKeyboardDone = { },
         )
 
         Column(
@@ -93,7 +100,7 @@ fun GameScreen( gameViewModel: GameViewModel = viewModel()) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
 
-            Button(
+            /*Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { }
             ) {
@@ -101,7 +108,19 @@ fun GameScreen( gameViewModel: GameViewModel = viewModel()) {
                     text = stringResource(R.string.submit),
                     fontSize = 16.sp
                 )
+            }*/
+
+            // https://developer.android.com/codelabs/basic-android-kotlin-compose-viewmodel-and-state?continue=https%3A%2F%2Fdeveloper.android.com%2Fcourses%2Fpathways%2Fandroid-basics-compose-unit-4-pathway-1%23codelab-https%3A%2F%2Fdeveloper.android.com%2Fcodelabs%2Fbasic-android-kotlin-compose-viewmodel-and-state#6
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(start = 8.dp),
+                onClick = { gameViewModel.checkUserGuess() }
+            ) {
+                Text(stringResource(R.string.submit))
             }
+
 
             OutlinedButton(
                 onClick = { },
@@ -132,9 +151,18 @@ fun GameStatus(score: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
+/*fun GameLayout(
+    currentScrambledWord: String,
+    modifier: Modifier = Modifier) */
+
 fun GameLayout(
     currentScrambledWord: String,
-    modifier: Modifier = Modifier) {
+    userGuess: String,
+    onUserGuessChanged: (String) -> Unit,
+    onKeyboardDone: () -> Unit,
+    modifier: Modifier = Modifier
+)
+{
     val mediumPadding = dimensionResource(R.dimen.padding_medium)
 
     Card(
@@ -174,19 +202,19 @@ fun GameLayout(
                 style = typography.titleMedium
             )
             OutlinedTextField(
-                value = "",
+                value = userGuess,
                 singleLine = true,
                 shape = shapes.large,
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.textFieldColors(containerColor = colorScheme.surface),
-                onValueChange = { },
+                onValueChange = onUserGuessChanged,
                 label = { Text(stringResource(R.string.enter_your_word)) },
                 isError = false,
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { }
+                    onDone = { onKeyboardDone() }
                 )
             )
         }
