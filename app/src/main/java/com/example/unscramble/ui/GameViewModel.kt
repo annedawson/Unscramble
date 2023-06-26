@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import com.example.unscramble.data.SCORE_INCREASE
 
 // in build.gradle(Module: app) add the following line to dependencies:
 // implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
@@ -37,6 +38,23 @@ class GameViewModel : ViewModel() {
         _uiState.value = GameUiState(currentScrambledWord = pickRandomWordAndShuffle())
     }
 
+    private fun updateGameState(updatedScore: Int) {
+        _uiState.update { currentState ->
+            currentState.copy(
+                isGuessedWordWrong = false,
+                currentScrambledWord = pickRandomWordAndShuffle(),
+                score = updatedScore,
+                currentWordCount = currentState.currentWordCount.inc(),
+            )
+        }
+    }
+
+    fun skipWord() {
+        updateGameState(_uiState.value.score)
+        // Reset user guess
+        updateUserGuess("")
+    }
+
     fun updateUserGuess(guessedWord: String){
         userGuess = guessedWord
     }
@@ -44,6 +62,10 @@ class GameViewModel : ViewModel() {
 
         // import kotlinx.coroutines.flow.update
         if (userGuess.equals(currentWord, ignoreCase = true)) {
+            // User's guess is correct, increase the score
+            // and call updateGameState() to prepare the game for next round
+            val updatedScore = _uiState.value.score.plus(SCORE_INCREASE)
+            updateGameState(updatedScore)
         } else {
             // User's guess is wrong, show an error
             _uiState.update { currentState ->
