@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.unscramble.data.SCORE_INCREASE
+import com.example.unscramble.data.MAX_NO_OF_WORDS
 
 // in build.gradle(Module: app) add the following line to dependencies:
 // implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1"
@@ -28,6 +28,9 @@ class GameViewModel : ViewModel() {
     var userGuess by mutableStateOf("")
         private set
 
+   /* The private set modifier on the variable means that the value of the variable
+      can only be changed from within the class where it is declared, i.e. the GameViewModel
+   */
     init {
         resetGame()
     }
@@ -39,13 +42,25 @@ class GameViewModel : ViewModel() {
     }
 
     private fun updateGameState(updatedScore: Int) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                isGuessedWordWrong = false,
-                currentScrambledWord = pickRandomWordAndShuffle(),
-                score = updatedScore,
-                currentWordCount = currentState.currentWordCount.inc(),
-            )
+        if (usedWords.size == MAX_NO_OF_WORDS){
+            //Last round in the game, update isGameOver to true, don't pick a new word
+            _uiState.update { currentState ->
+                currentState.copy(
+                    isGuessedWordWrong = false,
+                    score = updatedScore,
+                    isGameOver = true
+                )
+            }
+        } else{
+            // Normal round in the game
+            _uiState.update { currentState ->
+                currentState.copy(
+                    isGuessedWordWrong = false,
+                    currentScrambledWord = pickRandomWordAndShuffle(),
+                    currentWordCount = currentState.currentWordCount.inc(),
+                    score = updatedScore
+                )
+            }
         }
     }
 
@@ -58,6 +73,7 @@ class GameViewModel : ViewModel() {
     fun updateUserGuess(guessedWord: String){
         userGuess = guessedWord
     }
+    
     fun checkUserGuess() {
 
         // import kotlinx.coroutines.flow.update
